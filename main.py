@@ -1,18 +1,17 @@
 import base64
-import hashlib
-import os
-import re
-import json
-import requests
-import pickle
-from requests.auth import HTTPBasicAuth
-from requests_oauthlib import OAuth2Session
 import configparser
-import shutil
 import datetime
+import hashlib
+import json
+import os
+import pickle
+import re
 import urllib
+
 import requests
 from requests.adapters import HTTPAdapter
+from requests.auth import HTTPBasicAuth
+from requests_oauthlib import OAuth2Session
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
@@ -44,13 +43,11 @@ try:
     with open("access_token.pkl", "rb") as f:
         token = pickle.load(f)
     access = token["access_token"]
-    
+
     # Check if the token has an expires_in field
     if "expires_in" in token:
         # Convert the expires_at field to a datetime object
-        expires_at = datetime.datetime.fromtimestamp(
-            token["expires_at"]
-        )
+        expires_at = datetime.datetime.fromtimestamp(token["expires_at"])
         # Check if the current time is after the expires_at time
         if datetime.datetime.now() > expires_at:
             # The token has expired, check if we have a refresh token
@@ -117,7 +114,7 @@ except (FileNotFoundError, EOFError, ValueError):
 
     # Your access token
     access = token["access_token"]
-    
+
     # Save the token to a file
     with open("access_token.pkl", "wb") as f:
         pickle.dump(token, f)
@@ -141,6 +138,7 @@ headers = {
 downloads_dir = "downloads"
 if not os.path.exists(downloads_dir):
     os.mkdir(downloads_dir)
+
 
 def save_bookmarks(bookmarks, json_response):
     # Extract the users dictionary from the includes field
@@ -170,7 +168,9 @@ def save_bookmarks(bookmarks, json_response):
 
         # Save the text of the tweet as a .txt file
         tweet_text = bookmark["text"]
-        tweet_file = open(os.path.join(bookmark_folder, "tweet.txt"), "w", encoding='utf-8')
+        tweet_file = open(
+            os.path.join(bookmark_folder, "tweet.txt"), "w", encoding="utf-8"
+        )
         tweet_file.write(tweet_text)
         tweet_file.close()
 
@@ -178,7 +178,11 @@ def save_bookmarks(bookmarks, json_response):
         media_keys = bookmark.get("attachments", {}).get("media_keys", [])
         for media_key in media_keys:
             # Find the media in the includes list
-            media = next(m for m in json_response["includes"]["media"] if m["media_key"] == media_key)
+            media = next(
+                m
+                for m in json_response["includes"]["media"]
+                if m["media_key"] == media_key
+            )
 
             # Check if the media has a URL
             if "url" in media:
@@ -186,7 +190,9 @@ def save_bookmarks(bookmarks, json_response):
                 media_url = media["url"]
                 response = s.get(media_url)
                 if response.status_code == 200:
-                    media_filename = os.path.join(bookmark_folder, os.path.basename(media_url))
+                    media_filename = os.path.join(
+                        bookmark_folder, os.path.basename(media_url)
+                    )
                     media_file = open(media_filename, "wb")
                     media_file.write(response.content)
                     media_file.close()
@@ -212,16 +218,26 @@ def save_bookmarks(bookmarks, json_response):
                         query_string.pop("tag", None)
                         # Reassemble the URL with the modified query string
                         modified_url = urllib.parse.urlunparse(
-                            (parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, urllib.parse.urlencode(query_string, doseq=True), parsed_url.fragment)
+                            (
+                                parsed_url.scheme,
+                                parsed_url.netloc,
+                                parsed_url.path,
+                                parsed_url.params,
+                                urllib.parse.urlencode(query_string, doseq=True),
+                                parsed_url.fragment,
+                            )
                         )
                         # Split the file name into the base name and the extension
-                        base_name, extension = os.path.splitext(os.path.basename(modified_url))
+                        base_name, extension = os.path.splitext(
+                            os.path.basename(modified_url)
+                        )
                         # Join the base name and the extension back together
-                        media_filename = os.path.join(bookmark_folder, base_name + extension)
+                        media_filename = os.path.join(
+                            bookmark_folder, base_name + extension
+                        )
                         media_file = open(media_filename, "wb")
                         media_file.write(response.content)
                         media_file.close()
-
 
 
 # Initialize variables to store the bookmarks and pagination token
@@ -240,7 +256,9 @@ while True:
     response = requests.request("GET", url, headers=headers, params=params)
     if response.status_code != 200:
         raise Exception(
-            "Request returned an error: {} {}".format(response.status_code, response.text)
+            "Request returned an error: {} {}".format(
+                response.status_code, response.text
+            )
         )
     print("Response code: {}".format(response.status_code))
     json_response = response.json()
@@ -250,7 +268,7 @@ while True:
 
     # Check if there are more pages of bookmarks
     try:
-        next_token = json_response['meta']['next_token']
+        next_token = json_response["meta"]["next_token"]
         pagination_token = next_token
     except KeyError:
         break
