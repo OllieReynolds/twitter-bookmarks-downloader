@@ -132,3 +132,6 @@ dmypy.json
 
 secrets.txt
 config.ini
+access_token.pkl
+
+debug/
