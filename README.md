@@ -12,4 +12,5 @@ A simple script to download all Twitter bookmarks for your user
 
 1. Create config.ini file based on the config.ini.example
 2. Populate `client_id`, `client_secret` and `redirect_uri` in config.ini
-3. Run the script: `python main.py` 
+3. Run: `pip install -r requirements.txt` to install the dependencies
+4. Run the script: `python main.py`
