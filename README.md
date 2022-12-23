@@ -1,6 +1,7 @@
 # twitter-bookmarks-downloader
 
-A simple script to download all Twitter bookmarks for your user
+- Simple script to download all Twitter bookmarks for your user
+- Downloads rich media (photos/videos) attached to bookmarked tweets
 
 ## Prerequisites
 
